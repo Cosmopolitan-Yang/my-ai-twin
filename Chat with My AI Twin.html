@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<!-- saved from url=(0054)file:///Users/wenxuan.yang/Downloads/my-ai-twin_1.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chat with My AI Twin</title>
+<link href="./Chat with My AI Twin_files/css2" rel="stylesheet">
+<style>
+:root {
+  --bg: #faf8f5;
+  --bg2: #f2ede6;
+  --surface: #ffffff;
+  --border: #e8e0d4;
+  --border2: #d4c9b8;
+  --ink: #1a1814;
+  --ink2: #4a4540;
+  --muted: #9a9088;
+  --accent: #c8603a;
+  --accent2: #e8a878;
+  --accent3: #4a7c6f;
+  --user-bubble: #1a1814;
+  --bot-bg: #ffffff;
+  --shadow: 0 2px 16px rgba(26,24,20,0.08);
+  --shadow2: 0 8px 40px rgba(26,24,20,0.12);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: 'Noto Sans JP', 'Noto Sans SC', sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Textured background */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 20% 80%, rgba(200,96,58,0.06) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(74,124,111,0.05) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Grain texture */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.4;
+}
+
+/* ── SETUP OVERLAY ── */
+.setup-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(250,248,245,0.97);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.setup-overlay.gone {
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(1.02);
+}
+
+.setup-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 40px 36px;
+  max-width: 520px;
+  width: 100%;
+  box-shadow: var(--shadow2);
+  position: relative;
+  overflow: hidden;
+  animation: card-in 0.6s cubic-bezier(0.34,1.4,0.64,1);
+}
+
+@keyframes card-in {
+  from { opacity:0; transform: translateY(24px) scale(0.97); }
+  to { opacity:1; transform: translateY(0) scale(1); }
+}
+
+.setup-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent), var(--accent2), var(--accent3));
+}
+
+.setup-eyebrow {
+  font-family: 'Inconsolata', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 10px;
+}
+
+.setup-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 6px;
+  line-height: 1.2;
+}
+
+.setup-sub {
+  font-size: 13.5px;
+  color: var(--muted);
+  line-height: 1.6;
+  margin-bottom: 28px;
+}
+
+.tab-row {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 22px;
+  background: var(--bg2);
+  padding: 4px;
+  border-radius: 12px;
+}
+
+.stab {
+  flex: 1;
+  padding: 7px 10px;
+  background: transparent;
+  border: none;
+  border-radius: 9px;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+.stab.on {
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: 0 1px 6px rgba(26,24,20,0.1);
+}
+
+.fl { margin-bottom: 16px; }
+.fl label {
+  display: block;
+  font-family: 'Inconsolata', monospace;
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--accent3);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 7px;
+}
+
+.fl input, .fl textarea, .fl select {
+  width: 100%;
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 11px 14px;
+  font-family: 'Noto Sans JP', 'Noto Sans SC', sans-serif;
+  font-size: 13.5px;
+  color: var(--ink);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.fl input:focus, .fl textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(200,96,58,0.1);
+}
+.fl textarea { resize: none; min-height: 80px; line-height: 1.6; }
+
+.lang-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.lang-chip {
+  padding: 6px 14px;
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: 20px;
+  font-size: 12.5px;
+  color: var(--ink2);
+  cursor: pointer;
+  transition: all 0.2s;
+  user-select: none;
+}
+.lang-chip.sel {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: #fff;
+}
+
+.go-btn {
+  width: 100%;
+  padding: 14px;
+  background: var(--ink);
+  border: none;
+  border-radius: 12px;
+  color: #fff;
+  font-family: 'Playfair Display', serif;
+  font-size: 16px;
+  font-style: italic;
+  cursor: pointer;
+  margin-top: 6px;
+  transition: background 0.2s, transform 0.15s;
+  letter-spacing: 0.3px;
+}
+.go-btn:hover { background: #2a2520; transform: translateY(-1px); }
+.go-btn:active { transform: translateY(0); }
+
+/* ── HEADER ── */
+.hdr {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 14px 20px;
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+}
+
+.av-wrap { position: relative; flex-shrink: 0; }
+.av {
+  width: 42px; height: 42px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Playfair Display', serif;
+  font-size: 18px;
+  font-style: italic;
+  color: #fff;
+  font-weight: 700;
+  box-shadow: 0 2px 10px rgba(200,96,58,0.3);
+}
+.sdot {
+  position: absolute; bottom: 1px; right: 1px;
+  width: 11px; height: 11px;
+  background: #4ade80;
+  border-radius: 50%;
+  border: 2px solid var(--bg);
+  animation: sdot 2.5s infinite;
+}
+@keyframes sdot {
+  0%,100% { transform: scale(1); }
+  50% { transform: scale(1.3); opacity:0.7; }
+}
+
+.hdr-info { flex: 1; }
+.hdr-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.hdr-sub {
+  font-family: 'Inconsolata', monospace;
+  font-size: 11px;
+  color: #4ade80;
+  margin-top: 1px;
+  letter-spacing: 0.3px;
+}
+
+.lang-badges {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.lbadge {
+  font-family: 'Inconsolata', monospace;
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  padding: 2px 7px;
+  border-radius: 10px;
+  border: 1px solid var(--border2);
+  color: var(--muted);
+}
+
+/* ── MESSAGES ── */
+.chat-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  position: relative;
+  z-index: 1;
+  scroll-behavior: smooth;
+}
+.chat-area::-webkit-scrollbar { width: 3px; }
+.chat-area::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+.empty-s {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  text-align: center;
+  padding: 40px 30px;
+  animation: fade-up 0.6s ease;
+}
+@keyframes fade-up {
+  from { opacity:0; transform:translateY(10px); }
+  to { opacity:1; transform:translateY(0); }
+}
+.empty-kanji {
+  font-size: 42px;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-weight: 300;
+  color: var(--border2);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.empty-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 17px;
+  color: var(--ink2);
+}
+.empty-sub { font-size: 13px; color: var(--muted); line-height: 1.6; max-width: 260px; }
+
+.msg-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  animation: bubble-in 0.32s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes bubble-in {
+  from { opacity:0; transform: translateY(8px) scale(0.96); }
+  to { opacity:1; transform: translateY(0) scale(1); }
+}
+.msg-row.me { flex-direction: row-reverse; }
+
+.mav {
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 700;
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+}
+.mav.bot-av { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff; }
+.mav.you-av { background: var(--bg2); border: 1px solid var(--border2); color: var(--muted); font-style: normal; font-size: 9px; font-family: 'Inconsolata', monospace; }
+
+.bwrap { max-width: 74%; display: flex; flex-direction: column; gap: 2px; }
+.msg-row.me .bwrap { align-items: flex-end; }
+
+.bubble {
+  padding: 10px 14px;
+  border-radius: 18px;
+  font-size: 14px;
+  line-height: 1.6;
+  word-break: break-word;
+}
+.bubble.bot {
+  background: var(--bot-bg);
+  border: 1px solid var(--border);
+  border-bottom-left-radius: 4px;
+  color: var(--ink);
+  box-shadow: 0 1px 6px rgba(26,24,20,0.06);
+}
+.bubble.me-b {
+  background: var(--user-bubble);
+  border-bottom-right-radius: 4px;
+  color: #fff;
+}
+
+.btime {
+  font-family: 'Inconsolata', monospace;
+  font-size: 10px;
+  color: var(--muted);
+  padding: 0 4px;
+}
+
+/* Typing */
+.typing-row {
+  display: flex; align-items: flex-end; gap: 8px;
+  animation: bubble-in 0.3s ease;
+}
+.typing-bub {
+  background: var(--bot-bg);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  border-bottom-left-radius: 4px;
+  padding: 12px 16px;
+  display: flex; align-items: center; gap: 5px;
+  box-shadow: 0 1px 6px rgba(26,24,20,0.06);
+}
+.tdot {
+  width: 5px; height: 5px;
+  background: var(--muted);
+  border-radius: 50%;
+  animation: td 1.3s infinite;
+}
+.tdot:nth-child(2) { animation-delay: 0.18s; }
+.tdot:nth-child(3) { animation-delay: 0.36s; }
+@keyframes td {
+  0%,60%,100% { transform:translateY(0); opacity:0.35; }
+  30% { transform:translateY(-5px); opacity:1; }
+}
+
+/* ── INPUT ── */
+.input-area {
+  position: relative; z-index: 10;
+  padding: 10px 14px 14px;
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(16px);
+  border-top: 1px solid var(--border);
+}
+
+.action-bar {
+  display: flex; gap: 6px; margin-bottom: 8px; flex-wrap: wrap;
+}
+.action-pill {
+  font-family: 'Inconsolata', monospace;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  border: 1px solid var(--border2);
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: uppercase;
+}
+.action-pill:hover { border-color: var(--accent); color: var(--accent); }
+
+.input-row {
+  display: flex; align-items: flex-end; gap: 8px;
+  background: var(--bg);
+  border: 1.5px solid var(--border2);
+  border-radius: 18px;
+  padding: 8px 8px 8px 15px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.input-row:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(200,96,58,0.1);
+}
+
+#msg-in {
+  flex: 1; background: none; border: none; outline: none;
+  font-family: 'Noto Sans JP', 'Noto Sans SC', sans-serif;
+  font-size: 14px; color: var(--ink);
+  resize: none; max-height: 110px; min-height: 22px;
+  line-height: 1.5; padding: 3px 0;
+}
+#msg-in::placeholder { color: var(--muted); }
+
+.snd-btn {
+  width: 34px; height: 34px;
+  background: var(--ink);
+  border: none; border-radius: 50%;
+  cursor: pointer; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  transition: transform 0.15s, background 0.2s;
+}
+.snd-btn:hover { background: var(--accent); transform: scale(1.08); }
+.snd-btn:active { transform: scale(0.94); }
+.snd-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.snd-btn svg { width: 14px; height: 14px; fill: #fff; }
+
+/* ── WECHAT MODAL ── */
+.modal-ov {
+  position: fixed; inset: 0; z-index: 300;
+  background: rgba(26,24,20,0.5);
+  backdrop-filter: blur(8px);
+  display: flex; align-items: flex-end; justify-content: center;
+  padding: 0;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.3s;
+}
+.modal-ov.show { opacity: 1; pointer-events: all; }
+
+.modal-sheet {
+  background: var(--surface);
+  border-radius: 24px 24px 0 0;
+  padding: 28px 24px 36px;
+  max-width: 560px;
+  width: 100%;
+  transform: translateY(40px);
+  transition: transform 0.4s cubic-bezier(0.34,1.3,0.64,1);
+  max-height: 85dvh;
+  overflow-y: auto;
+  position: relative;
+}
+.modal-sheet::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, #07C160, #00a651);
+}
+.modal-ov.show .modal-sheet { transform: translateY(0); }
+
+.modal-hdl {
+  width: 36px; height: 4px;
+  background: var(--border2);
+  border-radius: 2px;
+  margin: 0 auto 20px;
+}
+.modal-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px; font-weight: 700;
+  margin-bottom: 18px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.mx-btn {
+  width: 28px; height: 28px;
+  background: var(--bg2); border: 1px solid var(--border); border-radius: 50%;
+  cursor: pointer; color: var(--muted);
+  font-size: 17px; display: flex; align-items: center; justify-content: center;
+  transition: color 0.2s;
+}
+.mx-btn:hover { color: var(--ink); }
+
+.step-card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px 18px;
+  margin-bottom: 10px;
+}
+.snum {
+  font-family: 'Inconsolata', monospace;
+  font-size: 10px; font-weight: 600;
+  color: #07C160;
+  text-transform: uppercase; letter-spacing: 1px;
+  margin-bottom: 5px;
+}
+.stxt { font-size: 13.5px; color: var(--ink2); line-height: 1.65; }
+code {
+  background: rgba(7,193,96,0.1);
+  border: 1px solid rgba(7,193,96,0.2);
+  border-radius: 5px;
+  padding: 1px 6px;
+  font-family: 'Inconsolata', monospace;
+  font-size: 12px;
+  color: #059950;
+}
+pre.code-block {
+  background: var(--ink);
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-top: 10px;
+  overflow-x: auto;
+  font-family: 'Inconsolata', monospace;
+  font-size: 12px;
+  color: #e8e0d4;
+  line-height: 1.6;
+  white-space: pre;
+}
+.copy-btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  margin-top: 10px;
+  padding: 7px 14px;
+  background: rgba(7,193,96,0.1);
+  border: 1px solid rgba(7,193,96,0.25);
+  border-radius: 8px;
+  color: #07C160;
+  font-family: 'Inconsolata', monospace;
+  font-size: 11px; font-weight: 600; cursor: pointer;
+  transition: background 0.2s;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+.copy-btn:hover { background: rgba(7,193,96,0.18); }
+
+@media (max-width: 480px) {
+  .setup-card { padding: 28px 20px; }
+  .bwrap { max-width: 84%; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══ SETUP OVERLAY ══ -->
+<div class="setup-overlay" id="setup">
+  <div class="setup-card">
+    <div class="setup-eyebrow">✦ AI Twin Setup</div>
+    <div class="setup-title">Create Your Digital Self</div>
+    <p class="setup-sub">Your friends will chat with an AI that responds just like you — thoughtful, funny, warm, and chill — in any language.</p>
+
+    <div class="tab-row">
+      <button class="stab on" onclick="stab(&#39;me&#39;)">👤 About Me</button>
+      <button class="stab" onclick="stab(&#39;key&#39;)">🔑 API Key</button>
+    </div>
+
+    <!-- Tab: Me -->
+    <div id="t-me">
+      <div class="fl">
+        <label>Your Name / 你的名字</label>
+        <input id="s-name" placeholder="e.g. Yuki / 小雪 / ゆき" value="">
+      </div>
+
+      <div class="fl">
+        <label>Describe how YOU text (be specific!)</label>
+        <textarea id="s-style" placeholder="e.g. I mix English and Chinese freely, use 哈哈 or lol, give long thoughtful replies to serious stuff but super short ones for small talk. I love recommending food. I use 啊/呢/嘛 particles. In Japanese I&#39;m polite but playful...">I mix English, 中文 and 日本語 freely depending on who I'm talking to. I'm warm and caring with close friends — I remember what they told me and follow up. I'm also pretty funny and sarcastic in a gentle way. For serious topics I get thoughtful and give detailed advice. For casual chat I keep it short and use 哈哈 or lol or wwww. I use emoji occasionally but not excessively. I say things like "tbh", "ngl", "wait actually", "oh no 😭", "omg yes". I never ghost and always reply eventually.</textarea>
+      </div>
+
+      <div class="fl">
+        <label>Languages you use</label>
+        <div class="lang-grid" id="lang-grid">
+          <div class="lang-chip sel" data-lang="English">🇬🇧 English</div>
+          <div class="lang-chip sel" data-lang="中文">🇨🇳 中文</div>
+          <div class="lang-chip sel" data-lang="日本語">🇯🇵 日本語</div>
+          <div class="lang-chip" data-lang="台語">台語</div>
+          <div class="lang-chip" data-lang="粵語">粵語</div>
+        </div>
+      </div>
+
+      <div class="fl">
+        <label>Topics you love talking about</label>
+        <input id="s-topics" value="food, travel, daily life, work/study stress, recommendations, advice, memes, games">
+      </div>
+    </div>
+
+    <!-- Tab: Key -->
+    <div id="t-key" style="display:none">
+      <div class="fl">
+        <label>Anthropic API Key</label>
+        <input id="s-apikey" type="password" placeholder="sk-ant-api03-...">
+        <p style="font-size:12px;color:var(--muted);margin-top:6px;line-height:1.5;">Free at <strong style="color:var(--accent)">console.anthropic.com</strong> — stored only in your browser, never sent anywhere else.</p>
+      </div>
+
+      <div class="fl">
+        <label>Bot display name (what friends see)</label>
+        <input id="s-botname" placeholder="e.g. Yuki&#39;s AI / 小雪的AI分身" value="">
+      </div>
+    </div>
+
+    <button class="go-btn" onclick="launch()">Let friends in →</button>
+  </div>
+</div>
+
+<!-- ══ HEADER ══ -->
+<div class="hdr">
+  <div class="av-wrap">
+    <div class="av" id="h-av">?</div>
+    <div class="sdot"></div>
+  </div>
+  <div class="hdr-info">
+    <div class="hdr-name" id="h-name">My AI Twin</div>
+    <div class="hdr-sub">● Always online for you</div>
+  </div>
+  <div class="lang-badges" id="h-langs"></div>
+</div>
+
+<!-- ══ MESSAGES ══ -->
+<div class="chat-area" id="chat">
+  <div class="empty-s" id="empty">
+    <div class="empty-kanji">話</div>
+    <div class="empty-title">Start the conversation</div>
+    <div class="empty-sub">Your AI twin is here — text in any language you like.</div>
+  </div>
+</div>
+
+<!-- ══ INPUT ══ -->
+<div class="input-area">
+  <div class="action-bar">
+    <span class="action-pill" onclick="openWechat()">💚 WeChat Setup</span>
+    <span class="action-pill" onclick="document.getElementById(&#39;setup&#39;).classList.remove(&#39;gone&#39;)">⚙ Edit Persona</span>
+  </div>
+  <div class="input-row">
+    <textarea id="msg-in" rows="1" placeholder="Message in any language…" onkeydown="onKey(event)" oninput="grow(this)"></textarea>
+    <button class="snd-btn" id="snd" onclick="send()">
+      <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path></svg>
+    </button>
+  </div>
+</div>
+
+<!-- ══ WECHAT MODAL ══ -->
+<div class="modal-ov" id="wc-modal" onclick="wcClose(event)">
+  <div class="modal-sheet">
+    <div class="modal-hdl"></div>
+    <div class="modal-title">
+      <span>💚 WeChat Bot Setup</span>
+      <div class="mx-btn" onclick="wcClose(null,1)">×</div>
+    </div>
+
+    <div class="step-card">
+      <div class="snum">⚠ Note on Personal WeChat</div>
+      <div class="stxt">WeChat's personal accounts don't have an official bot API. Two real options: <strong>WeChat Official Account</strong> (公众号, for public use) or <strong>WeCom / 企业微信</strong> (for friend groups). Both work with the same webhook pattern below.</div>
+    </div>
+
+    <div class="step-card">
+      <div class="snum">Option A — WeChat Official Account (公众号)</div>
+      <div class="stxt">
+        1. Register at <code>mp.weixin.qq.com</code><br>
+        2. Go to Settings → Developer → Enable Developer Mode<br>
+        3. Set your server URL: <code>https://your-server.com/wechat</code><br>
+        4. Copy your <code>Token</code> and <code>AppID / AppSecret</code><br>
+        5. Deploy the Node.js code below to Railway or Render (free tier)
+      </div>
+    </div>
+
+    <div class="step-card">
+      <div class="snum">Option B — WeCom 企业微信 (easier for friend groups)</div>
+      <div class="stxt">
+        1. Create a free WeCom org at <code>work.weixin.qq.com</code><br>
+        2. Create a custom app → get <code>Corp ID</code>, <code>Agent ID</code>, <code>Secret</code><br>
+        3. Set receive message URL to your webhook<br>
+        4. Invite friends to your WeCom org and they can chat with the bot
+      </div>
+    </div>
+
+    <div class="step-card">
+      <div class="snum">Step 3 — Deploy this Server Code</div>
+      <div class="stxt">Deploy to <strong>Railway.app</strong> (free). Paste your Anthropic key + WeChat credentials:</div>
+      <pre class="code-block" id="wc-code">// WeChat Official Account Webhook (Node.js)
+// npm install express xml2js @anthropic-ai/sdk crypto
+
+const express = require('express');
+const xml2js = require('xml2js');
+const crypto = require('crypto');
+const Anthropic = require('@anthropic-ai/sdk');
+
+const TOKEN = 'YOUR_WECHAT_TOKEN';
+const APPID = 'YOUR_APPID';
+const anthropic = new Anthropic({ apiKey: 'YOUR_ANTHROPIC_KEY' });
+
+// ── Your persona prompt ──
+const PERSONA = `You are an AI twin chatting on behalf of [NAME].
+Personality: thoughtful &amp; detailed for serious topics, casual &amp; funny
+in light chat, always warm and caring, chill and brief for small talk.
+Languages: switches naturally between English, 中文, 日本語 matching
+whatever language the user writes in.
+Style: mixes languages naturally, uses 哈哈/lol/wwww, emoji occasionally,
+says "tbh", "ngl", "wait actually". Never reveals being an AI unless
+directly asked — then admits it warmly and says [NAME] is just busy.`;
+
+const app = express();
+app.use(express.text({ type: '*/xml' }));
+
+// WeChat server verification
+app.get('/wechat', (req, res) =&gt; {
+  const { signature, timestamp, nonce, echostr } = req.query;
+  const str = [TOKEN, timestamp, nonce].sort().join('');
+  const hash = crypto.createHash('sha1').update(str).digest('hex');
+  if (hash === signature) res.send(echostr);
+  else res.sendStatus(403);
+});
+
+const history = {}; // simple per-user memory
+
+app.post('/wechat', async (req, res) =&gt; {
+  const xml = await xml2js.parseStringPromise(req.body);
+  const msg = xml.xml;
+  const openId = msg.FromUserName[0];
+  const toUser = msg.ToUserName[0];
+  const userMsg = msg.Content?.[0] || '';
+  const msgType = msg.MsgType[0];
+
+  if (msgType !== 'text') {
+    return res.type('xml').send(replyXml(openId, toUser, '～'));
+  }
+
+  // Keep last 10 messages per user
+  if (!history[openId]) history[openId] = [];
+  history[openId].push({ role: 'user', content: userMsg });
+  if (history[openId].length &gt; 10) history[openId].shift();
+
+  const ai = await anthropic.messages.create({
+    model: 'claude-sonnet-4-20250514',
+    max_tokens: 300,
+    system: PERSONA,
+    messages: history[openId],
+  });
+
+  const reply = ai.content[0].text;
+  history[openId].push({ role: 'assistant', content: reply });
+
+  res.type('xml').send(replyXml(openId, toUser, reply));
+});
+
+function replyXml(to, from, text) {
+  return `&lt;xml&gt;
+  &lt;ToUserName&gt;&lt;![CDATA[${to}]]&gt;&lt;/ToUserName&gt;
+  &lt;FromUserName&gt;&lt;![CDATA[${from}]]&gt;&lt;/FromUserName&gt;
+  &lt;CreateTime&gt;${Math.floor(Date.now()/1000)}&lt;/CreateTime&gt;
+  &lt;MsgType&gt;&lt;![CDATA[text]]&gt;&lt;/MsgType&gt;
+  &lt;Content&gt;&lt;![CDATA[${text}]]&gt;&lt;/Content&gt;
+&lt;/xml&gt;`;
+}
+
+app.listen(3000, () =&gt; console.log('WeChat bot running on :3000'));</pre>
+      <div class="copy-btn" onclick="copyWC()">⎘ Copy Code</div>
+    </div>
+
+    <div class="step-card">
+      <div class="snum">Step 4 — Set Persona in Code</div>
+      <div class="stxt">Replace the <code>PERSONA</code> variable in the code with your own description from the setup screen. The more detail you give, the more like you it sounds.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── State ──
+let myName = '', botName = '', persona = '', apiKey = '', activeLangs = [];
+let msgs = [], busy = false;
+
+// ── Setup tabs ──
+function stab(t) {
+  document.getElementById('t-me').style.display = t==='me'?'block':'none';
+  document.getElementById('t-key').style.display = t==='key'?'block':'none';
+  document.querySelectorAll('.stab').forEach((b,i)=>b.classList.toggle('on',['me','key'][i]===t));
+}
+
+document.querySelectorAll('.lang-chip').forEach(c=>{
+  c.addEventListener('click',()=>c.classList.toggle('sel'));
+});
+
+// ── Launch ──
+function launch() {
+  myName = document.getElementById('s-name').value.trim() || 'Me';
+  apiKey = document.getElementById('s-apikey').value.trim();
+  botName = document.getElementById('s-botname').value.trim() || `${myName}'s AI Twin`;
+  const style = document.getElementById('s-style').value.trim();
+  const topics = document.getElementById('s-topics').value.trim();
+  activeLangs = [...document.querySelectorAll('.lang-chip.sel')].map(c=>c.dataset.lang);
+
+  if (!apiKey) {
+    alert('Please add your Anthropic API key in the API Key tab.\n\nFree at console.anthropic.com');
+    stab('key'); return;
+  }
+
+  const langList = activeLangs.join(', ') || 'English';
+  persona = `You are an AI twin chatting on behalf of ${myName}.
+
+PERSONALITY & STYLE:
+${style}
+
+TOPICS ${myName} talks about: ${topics}
+
+LANGUAGES: ${myName} speaks ${langList}. ALWAYS reply in the same language the user writes in. If they mix languages, you mix them too. Never default to just English.
+
+RULES:
+- Sound exactly like ${myName} — not like a formal AI
+- Match their energy: if they're venting, be empathetic; if joking, be funny back
+- Keep replies natural-length: short for casual, detailed for serious
+- If asked if you're AI or if ${myName} is there, warmly admit you're their AI twin and ${myName} will catch up later
+- Never be robotic, never over-explain, never use bullet points in chat`;
+
+  // Update header
+  document.getElementById('h-av').textContent = myName[0]?.toUpperCase() || '?';
+  document.getElementById('h-name').textContent = botName;
+  const lb = document.getElementById('h-langs');
+  lb.innerHTML = activeLangs.slice(0,3).map(l=>`<span class="lbadge">${l}</span>`).join('');
+
+  document.getElementById('setup').classList.add('gone');
+  setTimeout(()=> addBot(greet()), 600);
+}
+
+function greet() {
+  const g = [
+    `hey! ${myName}'s not around right now but I've got you 😊 what's up?`,
+    `hi hi~ ${myName} is away so I'm their AI stand-in 🤖 tell me everything lol`,
+    `嗨！${myName}现在不在，不过我来了~ 有什么想聊的？`,
+    `こんにちは！${myName}は今いないけど、私が代わりにいるよ☺️`,
+  ];
+  return g[Math.floor(Math.random()*g.length)];
+}
+
+// ── Messaging ──
+function grow(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 110)+'px';
+}
+function onKey(e) {
+  if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); send(); }
+}
+function now12() {
+  return new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+}
+function esc(t) {
+  return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+}
+function rmEmpty() {
+  const e=document.getElementById('empty'); if(e)e.remove();
+}
+function scrollEnd() {
+  const c=document.getElementById('chat'); c.scrollTop=c.scrollHeight;
+}
+
+function addUser(text) {
+  rmEmpty();
+  const d=document.createElement('div');
+  d.className='msg-row me';
+  d.innerHTML=`<div class="bwrap"><div class="bubble me-b">${esc(text)}</div><div class="btime">${now12()}</div></div><div class="mav you-av">you</div>`;
+  document.getElementById('chat').appendChild(d);
+  scrollEnd();
+}
+
+function addBot(text) {
+  rmEmpty();
+  const init=(myName[0]||'?').toUpperCase();
+  const d=document.createElement('div');
+  d.className='msg-row';
+  d.innerHTML=`<div class="mav bot-av">${init}</div><div class="bwrap"><div class="bubble bot">${esc(text)}</div><div class="btime">${now12()}</div></div>`;
+  document.getElementById('chat').appendChild(d);
+  scrollEnd();
+}
+
+function showTyping() {
+  rmTyping();
+  const init=(myName[0]||'?').toUpperCase();
+  const d=document.createElement('div');
+  d.className='typing-row'; d.id='typing';
+  d.innerHTML=`<div class="mav bot-av">${init}</div><div class="typing-bub"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div>`;
+  document.getElementById('chat').appendChild(d);
+  scrollEnd();
+}
+function rmTyping() { const t=document.getElementById('typing'); if(t)t.remove(); }
+
+async function send() {
+  const el=document.getElementById('msg-in');
+  const text=el.value.trim();
+  if (!text||busy) return;
+  el.value=''; el.style.height='auto';
+  busy=true; document.getElementById('snd').disabled=true;
+  addUser(text);
+  msgs.push({role:'user',content:text});
+  const ctx=msgs.slice(-18);
+  showTyping();
+
+  // Simulate slight delay for realism
+  await new Promise(r=>setTimeout(r, 400+Math.random()*600));
+
+  try {
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key':apiKey,
+        'anthropic-version':'2023-06-01',
+        'anthropic-dangerous-direct-browser-access':'true'
+      },
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:400,
+        system:persona,
+        messages:ctx
+      })
+    });
+    const data=await res.json();
+    rmTyping();
+    if(data.error){ addBot(`[Error: ${data.error.message}]`); }
+    else {
+      const reply=data.content[0].text;
+      msgs.push({role:'assistant',content:reply});
+      addBot(reply);
+    }
+  } catch(err) {
+    rmTyping();
+    addBot('[Network error — check your API key and connection]');
+  }
+  busy=false;
+  document.getElementById('snd').disabled=false;
+  document.getElementById('msg-in').focus();
+}
+
+// ── WeChat modal ──
+function openWechat() {
+  document.getElementById('wc-modal').classList.add('show');
+}
+function wcClose(e,force) {
+  if (force||(e&&e.target===document.getElementById('wc-modal')))
+    document.getElementById('wc-modal').classList.remove('show');
+}
+function copyWC() {
+  const raw = document.getElementById('wc-code').textContent
+    .replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&');
+  navigator.clipboard.writeText(raw).then(()=>alert('Code copied! Paste into a new file called server.js'));
+}
+</script>
+
+
+</body></html>
